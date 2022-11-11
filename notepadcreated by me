@@ -1,0 +1,833 @@
+
+gagandeep.singh@techlanders.com
+https://nice17.signin.aws.amazon.com/console
+username:student005
+password:c11H{dW#HCqvOfY
+
+https://github.com/admingagan/terraform.git
+https://github.com/admingagan/terraform.git
+------------------------------------
+https://685421549691.signin.aws.amazon.com/console
+username:ibm14
+pass: Test@123
+
+https://notepad.pw/share/6j6TkTMVivzjgrONjH8U
+9876
+------------
+ ssh -i priya.pem ec2-user@54.87.250.46
+----------------------------------------------------------
+Terraform cloud credentials:
+
+Email:kasireddypriya@gmail.com
+Username:priyankak
+Password:Test@12345678
+
+===================================================
+AWS_ACCESS_KEY_ID : AKIAZ7FSO3B5ZZYOZBNV
+AWS_SECRET_ACCESS_KEY : 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
+
+================
+Access key ID
+AKIAZ7FSO3B5R5HAQDOH 
+Secret access key
+LpwchW9kT1mBlkkfF9PrRBeoHqS6+bPbfN64hww5 
+=======================
+How to create vm instnace through GUI
+name
+os-->amazon linux
+Instance type: t2 micro
+
+create a new key pair
+name and click on create
+
+
+network:
+select existing security group
+
+default security group
+
+---------
+sotage
+100GB
+ ssh -i pk_key.pem ec2-user@3.17.71.160
+ -------------------------------------------------------------------------
+ How to create instance through cli:
+ 
+ access key:AKIAWC66ELCCDHSFAR73
+ secret key: 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
+ 
+ 1) aws configure
+	2)AK
+	3)SK
+	4)region - us-east-2
+	5)output format: json
+ 6)aws ec2 describe-instances
+ 
+ 
+ [root@ip-172-31-33-120 gd]# cat main.tf
+provider "aws" {
+  region = "us-east-2"
+}
+
+resource "aws_instance" "s1" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "pr-server2"
+  }
+}
+[root@ip-172-31-33-120 gd]#
+
+
+---------------------------------------------------------------------
+
+
+ terraform show
+ cd /gd/
+ terraform show
+ cat main.tf
+ terraform apply
+ ls -l
+ more terraform.tfstate
+ ls -l
+ terraform plan
+ terraform apply
+ 
+ 
+ ---------------------------------------------------------------
+ access key :AKIAZ7FSO3B5S6OFJLG6
+ secret key 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
+ 
+ to create a vm in ohio with ubuntu and t2.nano:
+ provider "aws" {
+  region = "us-east-2"
+}
+
+resource "aws_instance" "s1" {
+  ami           = "ami-097a2df4ac947655f"
+  instance_type = "t2.nano"
+  tags = {
+    Name = "priyanka-server2"
+  }
+}
+================
+hostnamectl set-hostname gagan-devops
+===================
+
+==================================
+
+
+ mkdir /gagan
+ cd /gagan/
+ vi abc.tf
+ terraform init
+ vi abc.tf
+ terraform init
+ ls -l
+ ls -al
+ ls -l .terraform/providers/registry.terraform.io/hashicorp/aws/4.38.0/linux_amd64/terraform-provider-aws_v4.38.0_x5
+ cat abc.tf
+ ls -al
+ cat .terraform.lock.hcl
+ terraform plan
+ aws configure
+ terraform plan
+ cat $HOME/.aws/credentials
+ mv $HOME/.aws/credentials $HOME/.aws/credentials_old
+ terraform plan
+ export AWS_ACCESS_KEY_ID="AKIAZ7FSO3B5YAWIRMGI"
+ export AWS_SECRET_ACCESS_KEY="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"
+ terraform plan
+ env | grep -i aws
+ unset AWS_ACCESS_KEY_ID
+ unset AWS_SECRET_ACCESS_KEY
+ terraform plan
+
+AKIAZ7FSO3B5R5HAQDOH
+
+==================================== 
+terraform refresh will check and compare the statefile with aws env server..and according to ths terraform plan will work
+terraform init will download provider plugin and create two files .terraform and .terraform.lock.hc1
+.terraform file conatins provider plugin 
+.terraform.lock.hc1 will lock the terraform version, once installed for the first time.if exist it wont download terraform version again and again
+ if we want to chnage the terraform version then we need to run terraform inint upgrade
+ ===================
+ to comment in tf file: /* */
+ 
+ 
+=================================================
+
+
+====================================
+
+
+LAB:
+
+1. Understand multiple tf files in one folder behaviour of terraform
+
+2. Understand multiple resources and distorted ordering feature of terraform
+
+3. Temp deletion with terraform destroy (also check -target option)
+
+4. permanenent deletion with code delete/comment/filename change
+
+--------------------------------------------------------------
+
+Terraform output:
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-0d5bf08bc8017c83b"
+  instance_type = "t2.nano"
+  tags = {
+    Name = "gagandeep2"
+    Env = "Dev"
+  }
+}
+
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+output "details" {
+ value = aws_instance.s2.arn
+}
+
+output "IP" {
+ value = aws_instance.s2.public_ip
+}
+
+[root@gagan-devops gagan]#
+
+========================================
+terraform to create vpc,subnet,bucket and server instance
+resource "aws_instance" "s9" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.main.id
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+}
+
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "gagan-1-vpc"
+  }
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.4.0/24"
+
+  tags = {
+    Name = "Main"
+  }
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "my-tf-test-bucket-gds"
+  depends_on = [ aws_instance.s9 ]
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+output "details" {
+ value = aws_instance.s9.arn
+}
+
+output "IP" {
+ value = aws_instance.s9.public_ip
+}
+==============================
+========================================
+Update In place or destructuve changes:
+
+Label/tags
+Instance_type
+keypair/AZ/AMI
+
+========================
+
+Work with Implicit and explicit dependencies:
+
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.main.id
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+}
+
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "gagan-1-vpc"
+  }
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.4.0/24"
+
+  tags = {
+    Name = "Main"
+  }
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "my-tf-test-bucket-gds"
+  depends_on = [ aws_instance.s2 ]
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+output "details" {
+ value = aws_instance.s2.arn
+}
+
+output "IP" {
+ value = aws_instance.s2.public_ip
+}
+
+[root@gagan-devops gagan]#
+
+==================================================
+
+Proviosioners ( Local-exec)
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+# subnet_id = aws_subnet.main.id
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+  provisioner "local-exec" {
+    command = "echo The servers IP Adddress is ${self.private_ip} && echo ${self.private_ip} myawsserver2 >> inv"
+  }
+}
+===============================================================
+Remote Exec provisioner:
+
+ssh-keygen -t rsa
+cat /root/.ssh/id_rsa.pub
+## Copy the content and replace the content of terraform file:
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "gds2-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1otE/LHVuE6qP34fJe7jeYjKS3WKBX7zL6A3ee6fC163a18Cx9IFLzifLKN/l7x5Z3n7LyxpU8SJoRfrLKQuTn/5syt+f7C+uB+aDF4DFr4kl1TdLitATMCy0ud7gkU5u48uO11RGW624lJNrTr3HAi9U6D1y9CiE4lzX+WQ8aMKGzxdxpnsxS5uKziyffsUelYf2ncXDPIRYaqCnbooa9SQTDNLoDSnrXRsYD7tUhviu7tjpmT0IMwapZF5wzDpgF0NrL92WPhc2JYh4yMtaukUJZAw+dUfeLGmb8aTsU4UIyuV2Up5g8Wy25gjZTuSvKEMi988V17aJl61O53QZ root@gagan-devops"
+}
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+# subnet_id = aws_subnet.main.id
+  key_name = aws_key_pair.deployer.key_name
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+  provisioner "local-exec" {
+    command = "echo The servers Idress is ${self.private_ip} && echo ${self.private_ip} myawsserver2 >> inv"
+  }
+  provisioner "remote-exec" {
+    inline = [
+     "touch /tmp/gagandeep",
+      "sudo mkdir /root/gagan"
+     ]
+    connection {
+     type     = "ssh"
+     user     = "ec2-user"
+     insecure = "true"
+     private_key = "${file("/root/.ssh/id_rsa")}"
+     host     =  aws_instance.s2.public_ip
+  }
+}
+}
+==================================================================
+terraform taint: when there is a requirement to delete and recreate  a reource
+terraform taint aws_instance.s2
+grep -i taint ./terraform.tfstate
+terraform untaint aws_instance.s2
+=============================
+09/11/2022:
+ to create multiple providers:
+ 
+ resource.tf
+ resource "aws_instance" "myawsserver1" {
+  ami = "ami-0c94855ba95c71c99"
+  instance_type = "t2.nano"
+  provider = aws.b
+  tags = {
+    Name = "priyanka1"
+    Env = "Prod"
+  }
+}
+
+output "myawsserver1-ip" {
+  value = "${aws_instance.myawsserver1.public_ip}"
+}
+
+resource "aws_instance" "myawsserver2" {
+  ami = "ami-0603cbe34fd08cb81"
+  provider = aws.a
+  instance_type = "t2.nano"
+
+  tags = {
+    Name = "priyanka2"
+    Env = "Prod"
+  }
+}
+
+output "myawsserver2-ip" {
+  value = "${aws_instance.myawsserver2.public_ip}"
+}
+
+--------------------------
+provider.tf
+
+provider "aws" {
+  region = "us-east-2"
+}
+provider "aws" {
+  region = "us-east-2"
+  alias  = "a"
+}
+
+provider "aws" {
+  region = "us-east-1"
+  alias  = "b"
+}
+------------------------
+========================================================================================
+
+Terraform Variables:
+
+
+
+variable "hw" {
+  type = string
+  default = "t2.nano"
+}
+
+resource "aws_instance" "myawsserver" {
+  ami = "ami-0603cbe34fd08cb81"
+  instance_type = var.hw
+  tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+--variable:----------------------------------------
+  
+Priority increase from top to bottom:
+
+Not defined   -- UI
+default value
+env : export TF_VAR_hw="t2.micro"
+terraform.tfvars
+-var-file
+-var keyword during terraform apply/plan :  terraform plan -var hw="t2.micro"
+
+============================
+
+ terraform plan -var-file=prod.tfvars | egrep -i "ami|instance_type" 
+unset hw
+----------------------------------
+ terraform plan -var-file=prod.tfvars | egrep -i "ami|instance_type" 
+ ==============================
+ Conditions:
+
+resource "aws_instance" "myawsserver1" {
+  ami = var.image
+  instance_type = "${ var.env == "prod" ? "t2.medium" : "t2.nano" }"
+    tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+
+=============================
+terraform plan -var env="prod"
+terraform plan -var env="test"
+
+======================
+
+Conditional creation of resources:
+
+variable "env" {
+  type = string
+  default = "test"
+}
+
+variable "image" {
+  type = string
+  default = "ami-0603cbe34fd08cb81"
+}
+
+variable "ha" {
+  type = bool
+  default = false
+}
+
+
+resource "aws_instance" "myawsserver1" {
+  ami = var.image
+  instance_type = "${ var.env == "prod" ? "t2.medium" : "t2.nano" }"
+  count = "${ var.ha == true ? "2" : "1" }"
+    tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+
+========================================
+
+variable "env" {
+  type = string
+  default = "test"
+  sensitive = true
+}
+
+output "test" {
+  value = var.env
+  sensitive = true
+}
+==============================
+==========================
+
+REMOTE STATE:
+
+terraform {
+  backend "s3" {
+    bucket  = "aditi-bucket02"
+    key  = "gagan/terraform.tfstate"
+    region = "us-east-2"
+  }
+}
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+variable "tags" {
+  description = "map"
+  type        = map(string)
+  default     = {
+    env      = "test"
+    owner  = "gagandeep singh2"
+    dept   = "engineering"
+    client = "techlanders-client99"
+  }
+}
+output "string-print" {
+  value = [for first, second in var.tags : "${first} is having value ${second}"]
+}
+
+output "key-value-print" {
+  value = {
+   for key, value in var.tags :
+    key => value  
+ }
+}
+
+=========================================
+
+terraform import aws_instance.myawsserver1 i-0a815dc2ce005c29c
+==============================
+
+taint -->show if it feel the resource as problamatic 
+
+================================
+Create an EC2 instance in Ohio Region with the below details:
+1) Create a VPC with your name
+2) Create a subnet as a private-yourname under above VPC
+3) Create a keypair with your-name-21sep
+4) Create a Server under the above VPC/Subnet and with the above keypair
+5) Use variable for AMI and it must ask for AMI ID during the runtime
+6) Hardware should be defaulted to t2.micro but should be changeable by providing a value as "t2.nano" under terraform.tfvars file
+7) Server name it should ask during the runtime
+Add-on
+1) Check the public IP for your server? Is it there? Why not? Make sure it'll be there now...
+2) is the server accessible after PUBLIC IP? Why not?
+
+==========================================
+
+Remote state locking:
+
+terraform {
+  backend "s3" {
+    bucket  = "akshit-static-website-2"
+    key  = "gagan/terraform.tfstate"
+    region = "us-east-2"
+    dynamodb_table = "gagantflock"
+#   access_key = "XXXXXXXXXXXXXXXXXXXXXX"
+#   secret_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  }
+}
+
+=======================================
+for s3 backend locking is not ther, so we use dynabobd to create table and maintaining locking over there
+=======================================
+
+DATA SOURCES:
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "myawsserver" {
+  ami = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "Techlanders-aws-ec2-instance-V2"
+    Env = "Prod"
+  }
+}
+
+output "myawsserver-ip" {
+  value = "${aws_instance.myawsserver.public_ip}"
+}
+
+
+=========================================
+FUCNTIONS:
+
+resource "aws_instance" "myawsserver" {
+  ami = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  user_data = templatefile("userdata.tftpl", { dept = "abc", username = "user1" })
+  tags = {
+    Name = lower("Techlanders-aws-ec2-instance-V2")
+    Env = upper("Prod")
+  }
+}
+
+output "myawsserver-ip" {
+  value = "${aws_instance.myawsserver.public_ip}"
+}
+
+-----------------------
+USERDATA.TFTPL
+
+#!/bin/bash
+
+# Setup sudo to allow no-password sudo for your group and adding your user
+sudo groupadd -r ${dept}
+sudo useradd -m -s /bin/bash ${username}
+
+
+===========================================
+
+TERRAFORM WORKSPACE:
+
+terraform init
+terraform workspace list
+terraform apply
+terraform workspace new prod
+terraform apply
+pwd
+ls -l
+terraform refresh
+terraform workspace show
+terraform workspace list
+terraform workspace select default
+terraform workspace list
+terraform workspace show
+terraform refresh
+terraform workspace new dev
+terraform workspace list
+terraform apply
+terraform workspace select default
+terraform workspace delete dev
+terraform workspace delete prod
+terraform workspace select prod
+terraform destroy
+terraform workspace select default
+terraform workspace delete prod
+terraform workspace list
+
+=========================================
+
+=========================================
+
+Modules:
+
+provider "aws" {
+    region = "us-east-2"
+}
+
+module "s1" {
+    source = "/home/ec2-user/environment/terraform/aws/child_module"
+    name = "gagan-module-server1"
+    hw = "t2.micro"
+    bucket_name = "gagan-bucket1"
+}
+
+module "s2" {
+    source = "/home/ec2-user/environment/terraform/aws/child_module"
+    name = "gagan-module-server2"
+    bucket_name = "gagan-bucket2"
+}
+
+===============================
+
+child module code
+
+variable "image" {
+  type = string
+  default = "ami-0603cbe34fd08cb81"
+  description = "Enter your APP Image to be deployed"
+}
+
+variable "hw" {
+  type = string
+  default = "t2.nano"
+  description = "Enter your hardware model"
+}
+
+variable "name" {
+  type = string
+  default = "gagan-server1"
+  description = "Enter your server name"
+}
+
+variable "bucket_name" {
+  type = string
+  description = "Enter your server name"
+}
+
+resource "aws_instance" "myawsserver" {
+  ami = var.image
+  instance_type = var.hw
+
+  tags = {
+    Name = var.name
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = var.bucket_name
+
+  tags = {
+    Name        = var.bucket_name
+    Environment = "Dev"
+  }
+}
+
+
+output "myawsserver-ip" {
+  value = aws_instance.myawsserver.public_ip
+}
+
+output "myserver-PrivateIP" {
+  value = aws_instance.myawsserver.private_ip
+}
+
+
+=======================================
+=======================================
+
+OEM Module:
+
+provider "aws" {
+    region = "us-east-2"
+}
+
+module "s1" {
+    source = "/home/ec2-user/environment/terraform/aws/child_module"
+    name = "gagan-module-server1"
+    hw = "t2.micro"
+    bucket_name = "gagan-bucket1"
+}
+
+module "abc" {
+  source = "terraform-aws-modules/vpc/aws"
+  name = "gagan-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-2a", "us-east-2b", "us-east-2c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_nat_gateway = false
+  enable_vpn_gateway = false
+
+  tags = {
+    Terraform = "true"
+    Environment = "dev"
+  }
+}
+
+=================================================
+Jenkins Installation:
+
+yum install java
+sudo wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+sudo yum upgrade
+sudo yum install jenkins -y
+sudo systemctl daemon-reload
+systemctl status jenkins
+vi /usr/lib/systemd/system/jenkins.service   // modify user and group to root
+systemctl daemon-reload
+systemctl start jenkins
+systemctl status jenkins
+
+===================================================
+automate through jenkins:
+
+id
+pwd
+ls -l
+terraform init
+terraform apply -auto-approve
