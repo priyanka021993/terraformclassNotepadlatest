@@ -1,0 +1,489 @@
+
+Written by Anonymous
+
+IBM DevOps IaC - 07 Nov 22
+=======================
+
+ssh -i gd-key.pem ec2-user@18.118.211.218
+
+sudo -i
+
+ aws configure
+	AK
+	SK
+	region - us-east-2
+	output format: json
+
+
+ aws ec2 describe-instances
+
+-------------
+
+https://www.terraform.io/downloads
+
+ sudo yum install -y yum-utils
+ sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+ sudo yum -y install terraform
+ terraform -v
+
+-------------------------
+
+
+    1  mkdir /gd
+    2  cd /gd
+    3  vi main.tf
+    4  cat main.tf
+    5  terraform init
+    6  terraform validate
+    7  cat main.tf
+    8  terraform fmt
+    9  cat main.tf
+   10  terraform plan
+   11  terraform apply
+   12  history
+[root@ip-172-31-33-120 gd]# cat main.tf
+provider "aws" {
+  region = "us-east-2"
+}
+
+resource "aws_instance" "s1" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "gd-server2"
+  }
+}
+[root@ip-172-31-33-120 gd]#
+
+
+---------------------------------------------------------------------
+
+
+ terraform show
+ cd /gd/
+ terraform show
+ cat main.tf
+ terraform apply
+ ls -l
+ more terraform.tfstate
+ ls -l
+ terraform plan
+ terraform apply
+
+===========================
+
+LAB - Create a server in Ohio Region with OS Ubuntu 20.x and t2.nano instance type. Server name should be your name. Create same with terraform code.
+
+
+hostnamectl set-hostname gagan-devops
+
+==================================
+
+
+ mkdir /gagan
+ cd /gagan/
+ vi abc.tf
+ terraform init
+ vi abc.tf
+ terraform init
+ ls -l
+ ls -al
+ ls -l .terraform/providers/registry.terraform.io/hashicorp/aws/4.38.0/linux_amd64/terraform-provider-aws_v4.38.0_x5
+ cat abc.tf
+ ls -al
+ cat .terraform.lock.hcl
+ terraform plan
+ aws configure
+ terraform plan
+ cat $HOME/.aws/credentials
+ mv $HOME/.aws/credentials $HOME/.aws/credentials_old
+ terraform plan
+ export AWS_ACCESS_KEY_ID="AKIAZ7FSO3B5YAWIRMGI"
+ export AWS_SECRET_ACCESS_KEY="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"
+ terraform plan
+ env | grep -i aws
+ unset AWS_ACCESS_KEY_ID
+ unset AWS_SECRET_ACCESS_KEY
+ terraform plan
+
+
+====================================
+
+
+LAB:
+
+1. Understand multiple tf files in one folder behaviour of terraform
+
+2. Understand multiple resources and distorted ordering feature of terraform
+
+3. Temp deletion with terraform destroy (also check -target option)
+
+4. permanenent deletion with code delete/comment/filename change
+
+--------------------------------------------------------------
+
+Terraform output:
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-0d5bf08bc8017c83b"
+  instance_type = "t2.nano"
+  tags = {
+    Name = "gagandeep2"
+    Env = "Dev"
+  }
+}
+
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+output "details" {
+ value = aws_instance.s2.arn
+}
+
+output "IP" {
+ value = aws_instance.s2.public_ip
+}
+
+[root@gagan-devops gagan]#
+
+========================================
+Update In place or destructuve changes:
+
+Label/tags
+Instance_type
+keypair/AZ/AMI
+
+========================
+
+Work with Implicit and explicit dependencies:
+
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.main.id
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+}
+
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "gagan-1-vpc"
+  }
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.4.0/24"
+
+  tags = {
+    Name = "Main"
+  }
+}
+
+resource "aws_s3_bucket" "b" {
+  bucket = "my-tf-test-bucket-gds"
+  depends_on = [ aws_instance.s2 ]
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+output "details" {
+ value = aws_instance.s2.arn
+}
+
+output "IP" {
+ value = aws_instance.s2.public_ip
+}
+
+[root@gagan-devops gagan]#
+
+==================================================
+
+Proviosioners ( Local-exec)
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+# subnet_id = aws_subnet.main.id
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+  provisioner "local-exec" {
+    command = "echo The servers IP Adddress is ${self.private_ip} && echo ${self.private_ip} myawsserver >> inv"
+  }
+}
+
+[root@gagan-devops gagan]#
+
+
+======================================
+
+Remote Exec provisioner:
+
+ssh-keygen -t rsa
+cat /root/.ssh/id_rsa.pub
+## Copy the content and replace the content of terraform file:
+
+[root@gagan-devops gagan]# cat abc.tf
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "gds2-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1otE/LHVuE6qP34fJe7jeYjKS3WKBX7zL6A3ee6fC163a18Cx9IFLzifLKN/l7x5Z3n7LyxpU8SJoRfrLKQuTn/5syt+f7C+uB+aDF4DFr4kl1TdLitATMCy0ud7gkU5u48uO11RGW624lJNrTr3HAi9U6D1y9CiE4lzX+WQ8aMKGzxdxpnsxS5uKziyffsUelYf2ncXDPIRYaqCnbooa9SQTDNLoDSnrXRsYD7tUhviu7tjpmT0IMwapZF5wzDpgF0NrL92WPhc2JYh4yMtaukUJZAw+dUfeLGmb8aTsU4UIyuV2Up5g8Wy25gjZTuSvKEMi988V17aJl61O53QZ root@gagan-devops"
+}
+
+resource "aws_instance" "s2" {
+  ami           = "ami-089a545a9ed9893b6"
+  instance_type = "t2.micro"
+# subnet_id = aws_subnet.main.id
+  key_name = aws_key_pair.deployer.key_name
+  tags = {
+    Name = "gagandeep2"
+    Env = "lab"
+  }
+  provisioner "local-exec" {
+    command = "echo The servers Idress is ${self.private_ip} && echo ${self.private_ip} myawsserver2 >> inv"
+  }
+  provisioner "remote-exec" {
+    inline = [
+     "touch /tmp/gagandeep",
+      "sudo mkdir /root/gagan"
+     ]
+    connection {
+     type     = "ssh"
+     user     = "ec2-user"
+     insecure = "true"
+     private_key = "${file("/root/.ssh/id_rsa")}"
+     host     =  aws_instance.s2.public_ip
+  }
+}
+}
+==================================================================
+
+terraform taint aws_instance.s2
+grep -i taint ./terraform.tfstate
+terraform untaint aws_instance.s2
+
+
+========================================================================================
+
+Terraform Variables:
+
+Declare - .tf file  
+definition - terraform.tfvars file
+
+--------------
+
+
+variable "hw" {
+  type = string
+  default = "t2.nano"
+}
+
+resource "aws_instance" "myawsserver" {
+  ami = "ami-0603cbe34fd08cb81"
+  instance_type = var.hw
+  tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+------------------------------------------
+Priority increase from top to bottom:
+
+Not defined   -- UI
+default value
+env : export TF_VAR_hw="t2.micro"
+terraform.tfvars
+-var-file
+-var keyword during terraform apply/plan :  terraform plan -var hw="t2.micro"
+
+============================
+
+ terraform plan -var-file=prod.tfvars | egrep -i "ami|instance_type" 
+
+=========================
+
+Conditions:
+
+resource "aws_instance" "myawsserver1" {
+  ami = var.image
+  instance_type = "${ var.env == "prod" ? "t2.medium" : "t2.nano" }"
+    tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+
+=============================
+terraform plan -var env="prod"
+terraform plan -var env="test"
+
+----------------------------------------
+
+Conditional creation of resources:
+
+variable "env" {
+  type = string
+  default = "test"
+}
+
+variable "image" {
+  type = string
+  default = "ami-0603cbe34fd08cb81"
+}
+
+variable "ha" {
+  type = bool
+  default = false
+}
+
+
+resource "aws_instance" "myawsserver1" {
+  ami = var.image
+  instance_type = "${ var.env == "prod" ? "t2.medium" : "t2.nano" }"
+  count = "${ var.ha == true ? "2" : "1" }"
+    tags = {
+    Name = "Gagandeep-aws-ec2-instance-Nomura v2"
+    Env = "test"
+    Owner = "Gagandeep"
+  }
+}
+
+========================================
+
+variable "env" {
+  type = string
+  default = "test"
+  sensitive = true
+}
+
+output "test" {
+  value = var.env
+  sensitive = true
+}
+
+==========================
+
+REMOTE STATE:
+
+terraform {
+  backend "s3" {
+    bucket  = "aditi-bucket02"
+    key  = "gagan/terraform.tfstate"
+    region = "us-east-2"
+  }
+}
+
+provider "aws" {
+  region = "us-east-2"
+}
+
+variable "tags" {
+  description = "map"
+  type        = map(string)
+  default     = {
+    env      = "test"
+    owner  = "gagandeep singh2"
+    dept   = "engineering"
+    client = "techlanders-client99"
+  }
+}
+output "string-print" {
+  value = [for first, second in var.tags : "${first} is having value ${second}"]
+}
+
+output "key-value-print" {
+  value = {
+   for key, value in var.tags :
+    key => value  
+ }
+}
+
+=========================================
+
+terraform import aws_instance.myawsserver1 i-0a815dc2ce005c29c
+
+
+==========================================
+
+Remote state locking:
+
+terraform {
+  backend "s3" {
+    bucket  = "akshit-static-website-2"
+    key  = "gagan/terraform.tfstate"
+    region = "us-east-2"
+    dynamodb_table = "gagantflock"
+#   access_key = "XXXXXXXXXXXXXXXXXXXXXX"
+#   secret_key = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  }
+}
+
+=======================================
+
+LAB - Module Versioning, Required inputs/optional Inputs, Printing outputs via module
+
+
+[root@gagan-devops gagan]# cat main.tf
+provider "aws" {
+ region = "us-east-2"
+}
+
+
+module "s1" {
+ source  = "app.terraform.io/ibm-gagan1-nov22/server/aws"
+ version = "1.0.0"
+}
+
+output "server_ip" {
+ value = module.s1.IP
+}
+[root@gagan-devops gagan]#
+
+
+============================================
+
+
+=================================================
+
+Jenkins Installation:
+
+yum install java
+sudo wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+sudo yum upgrade
+sudo yum install jenkins -y
+sudo systemctl daemon-reload
+systemctl status jenkins
+vi /usr/lib/systemd/system/jenkins.service   // modify user and group to root
+systemctl daemon-reload
+systemctl start jenkins
+systemctl status jenkins
+
+===================================================
+
+
+
